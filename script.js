@@ -2,24 +2,75 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// Initialisation de Three.js
+// Animation du background avec la souris
+const bgAnimation = document.getElementById('bgAnimation');
+let mouseX = 0;
+let mouseY = 0;
+let targetX = 0;
+let targetY = 0;
+
+document.addEventListener('mousemove', (e) => {
+    targetX = (e.clientX / window.innerWidth - 0.5) * 20;
+    targetY = (e.clientY / window.innerHeight - 0.5) * 20;
+});
+
+function updateBackground() {
+    mouseX += (targetX - mouseX) * 0.05;
+    mouseY += (targetY - mouseY) * 0.05;
+    
+    bgAnimation.style.background = `
+        radial-gradient(
+            circle at ${50 + mouseX}% ${50 + mouseY}%,
+            rgba(13, 107, 196, 0.3) 0%,
+            rgba(11, 18, 38, 0.8) 30%,
+            rgba(26, 21, 61, 0.9) 60%,
+            rgba(8, 8, 18, 1) 100%
+        )
+    `;
+    
+    requestAnimationFrame(updateBackground);
+}
+
+updateBackground();
+
+// Animation du nom
+const animatedName = document.getElementById('animatedName');
+const nameParts = document.querySelectorAll('.name-part');
+
+function animateName() {
+    nameParts.forEach((part, index) => {
+        setTimeout(() => {
+            part.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                part.style.transform = 'translateY(0)';
+            }, 200);
+        }, index * 100);
+    });
+}
+
+// Répéter l'animation du nom toutes les 5 secondes
+setInterval(animateName, 5000);
+
+// Initialiser l'animation au chargement
+animateName();
+
+// Three.js Scene
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// Utiliser le conteneur dédié pour le rendu
 const modelContainer = document.getElementById('model-container');
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(modelContainer.clientWidth, modelContainer.clientHeight);
 modelContainer.appendChild(renderer.domElement);
 
-// Ajouter des contrôles d'orbite
+// Orbit Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.enablePan = true;
 
-// Lumières
+// Lights
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
 
@@ -27,93 +78,78 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
-// Variable pour garder le modèle accessible depuis animate()
+// Load 3D Model
 let loadedModel = null;
-
-// Charger le modèle GLTF
 const loader = new GLTFLoader();
+
 loader.load('./models/scene.gltf', (gltf) => {
     const model = gltf.scene;
     scene.add(model);
     loadedModel = model;
 
-    // --- IMPORTANT : enlever position arbitraire ---
-    // model.position.set(10, 10, 10); // <-- supprimé
-
-    // Calculer bounding box et centrer le modèle à l'origine
+    // Center and scale model
     const box = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
 
-    // Recentre le modèle (déplace le modèle pour que son centre soit à 0,0,0)
     model.position.sub(center);
 
-    // Redimensionner automatiquement pour qu'il soit plus grand à l'écran
-    // "desired" est la taille cible maximale (en unités Three.js) : ajuste si nécessaire
-    const desired = 4; // tu peux augmenter (ex: 6) si tu veux encore plus grand
+    const desired = 4;
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = maxDim > 0 ? (desired / maxDim) : 1;
     model.scale.setScalar(scale);
 
-    // Recalculer la boite après mise à l'échelle / recentrage
     const newBox = new THREE.Box3().setFromObject(model);
     const newCenter = newBox.getCenter(new THREE.Vector3());
     const newSize = newBox.getSize(new THREE.Vector3());
 
-    // Placer la caméra face au modèle (on met la caméra en z positif par rapport au centre)
     const distance = Math.max(newSize.x, newSize.y, newSize.z) * 0.7;
     camera.position.set(newCenter.x, newCenter.y, newCenter.z + distance);
     controls.target.copy(newCenter);
     controls.update();
 
-    // Orienter le modèle pour faire face à la caméra (utile si l'on voit la "gauche" par défaut)
-    // `lookAt` oriente l'axe +Z local vers la caméra : si ton modèle "avant" n'est pas +Z, ajuste ensuite.
     model.lookAt(camera.position);
+    model.userData.autoRotate = true;
 
-    // Option : si lookAt n'est pas correct (toujours la mauvaise face), décommente l'une des lignes ci-dessous
-    // model.rotation.y = Math.PI / 2;   // tourne de 90°
-    // model.rotation.y = -Math.PI / 2;  // tourne de -90°
-    // model.rotation.y = Math.PI;       // tourne de 180°
-
-    // Option : démarre une rotation automatique lente pour inspecter l'objet
-    model.userData.autoRotate = true; // mettre false pour désactiver
 }, undefined, (error) => {
     console.error('Erreur lors du chargement du GLTF :', error);
-
-    // Créer un cube de secours si le modèle ne charge pas
+    
+    // Fallback cube
     const geometry = new THREE.BoxGeometry(2, 2, 2);
-    const material = new THREE.MeshPhongMaterial({ color: 0x3498db });
+    const material = new THREE.MeshPhongMaterial({ 
+        color: 0x3498db,
+        transparent: true,
+        opacity: 0.8
+    });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
     loadedModel = cube;
     cube.userData.autoRotate = true;
 });
 
-// Ajustement initial si modèle absent encore
 camera.position.z = 10;
 
-// Animation
+// Animation Loop
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
 
-    // Rotation automatique lente si activée
     if (loadedModel && loadedModel.userData && loadedModel.userData.autoRotate) {
-        loadedModel.rotation.y += 0.005; // vitesse : augmente si tu veux plus rapide
+        loadedModel.rotation.y += 0.005;
     }
 
     renderer.render(scene, camera);
 }
 animate();
 
-// Redimensionnement
+// Resize Handler
 window.addEventListener('resize', () => {
     camera.aspect = modelContainer.clientWidth / modelContainer.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(modelContainer.clientWidth, modelContainer.clientHeight);
 });
 
-// Navigation fluide (inchangé)
+// Smooth Navigation
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -127,7 +163,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Animation nav (inchangé)
+// Nav Animation
 window.addEventListener('scroll', () => {
     const nav = document.querySelector('nav');
     if (window.scrollY > 100) {
@@ -139,9 +175,32 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Gestion du formulaire (inchangé)
+// Form Handler
 document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     alert('Merci pour votre message ! Je vous répondrai dans les plus brefs délais.');
     this.reset();
+});
+
+// Intersection Observer pour les animations au scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observer les cartes et le tableau
+document.querySelectorAll('.card, .associative-table').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
 });
