@@ -3,51 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio | Votre Nom</title>
+    <title>Portfolio | CHERIF Mohamed Ali</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
-    <!-- Background animé -->
-    <div class="background-animation"></div>
+    <!-- Background animé interactif -->
+    <div class="background-animation" id="bgAnimation"></div>
     
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <ul class="nav-links">
-                
                 <li><a href="#accueil">Accueil</a></li>
                 <li><a href="#experience">Expérience</a></li>
                 <li><a href="#competences">Compétences</a></li>
                 <li><a href="#vie-associative">Vie Associative</a></li>
                 <li><a href="#contact">Contact</a></li>
-                
             </ul>
         </div>
     </nav>
-    <br><br><br><br>
+    <br><br>
     <!-- Section Hero -->
     <section class="hero photo-section">
-  <div id="accueil" class="hero-container">
-    <div class="hero-content">
-      <h1>CHERIF Mohamed Ali</h1>
-      <p>Élève ingénieur en informatique appliquée</p>
-        <a class="cta" href="#contact" role="button" aria-label="Contactez-moi">Contactez-moi</a>
+        <div id="accueil" class="hero-container">
+            <div class="hero-content">
+                <!-- Nom animé -->
+                <div class="animated-name-container">
+                    <h1 class="animated-name" id="animatedName">
+                        <span class="name-part">CHERIF</span>
+                        <span class="name-part">Mohamed</span>
+                        <span class="name-part">Ali</span>
+                    </h1>
+                </div>
+                <p>Élève ingénieur en informatique appliquée</p>
+                <a class="cta" href="#contact" role="button" aria-label="Contactez-moi">Contactez-moi</a>
+            </div>
 
-    </div>
+            <div class="hero-image">
+                <!-- Image avec cadre transparent -->
+                <div class="image-frame">
+                    <div class="frame-border"></div>
+                    <img src="/images/photo.png" alt="CHERIF Mohamed Ali" />
+                    <div class="frame-reflection"></div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="hero-image">
-      <img src="/images/photo.png" alt="photo" />
-    </div>
-  </div>
-</section>
-
-    
     <!-- Section Modèle 3D -->
     <section id="modele3d" class="model-section">
-        <div class="section-title">
-           
-        </div>
         <div class="model-container" id="model-container">
             <!-- Le modèle 3D sera affiché ici -->
         </div>
@@ -176,27 +181,48 @@
         </div>
     </section>
     
-    <!-- Section Vie Associative -->
+    <!-- Section Vie Associative - Version Tableau -->
     <section id="vie-associative">
         <div class="section-title">
             <h2>Vie Associative</h2>
         </div>
-        <div class="card-container">
-            <div class="card">
-                <h3>Bénévolat Tech</h3>
-                <p>Association Code for Good • 2019 - Présent</p>
-                <p>Enseignement de la programmation aux jeunes défavorisés et participation à des hackathons caritatifs.</p>
-            </div>
-            <div class="card">
-                <h3>Membre Actif</h3>
-                <p>Club de Design Local • 2017 - 2020</p>
-                <p>Organisation d'ateliers et de conférences sur le design d'interface et l'expérience utilisateur.</p>
-            </div>
-            <div class="card">
-                <h3>Mentor</h3>
-                <p>Programme de Mentorat Tech • 2018 - 2021</p>
-                <p>Accompagnement de jeunes développeurs dans leurs premiers projets professionnels.</p>
-            </div>
+        <div class="table-container">
+            <table class="associative-table">
+                <thead>
+                    <tr>
+                        <th>Activité</th>
+                        <th>Organisation</th>
+                        <th>Période</th>
+                        <th>Rôle & Responsabilités</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bénévolat Tech</td>
+                        <td>Association Code for Good</td>
+                        <td>2019 - Présent</td>
+                        <td>Enseignement de la programmation aux jeunes défavorisés et participation à des hackathons caritatifs</td>
+                    </tr>
+                    <tr>
+                        <td>Membre Actif</td>
+                        <td>Club de Design Local</td>
+                        <td>2017 - 2020</td>
+                        <td>Organisation d'ateliers et de conférences sur le design d'interface et l'expérience utilisateur</td>
+                    </tr>
+                    <tr>
+                        <td>Mentor</td>
+                        <td>Programme de Mentorat Tech</td>
+                        <td>2018 - 2021</td>
+                        <td>Accompagnement de jeunes développeurs dans leurs premiers projets professionnels</td>
+                    </tr>
+                    <tr>
+                        <td>Trésorier</td>
+                        <td>Association des Étudiants en Informatique</td>
+                        <td>2020 - 2022</td>
+                        <td>Gestion du budget et organisation d'événements technologiques</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </section>
     
@@ -227,8 +253,6 @@
             </form>
         </div>
     </section>
-    
-    
     
     <!-- Import Maps et Scripts -->
     <script type="importmap">
